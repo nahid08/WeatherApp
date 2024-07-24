@@ -25,15 +25,13 @@ import java.util.List;
 public class DailyForecastView extends VerticalLayout  {
 
     LocationDTO locationDTO;
-    AuthenticationContext authenticationContext;
     OpenMeteoApiService openMeteoApiService;
     FavoriteLocationService favoriteLocationService;
 
 
-    DailyForecastView(OpenMeteoApiService openMeteoApiService, FavoriteLocationService favoriteLocationService, AuthenticationContext authenticationContext) {
+    DailyForecastView(OpenMeteoApiService openMeteoApiService, FavoriteLocationService favoriteLocationService) {
         this.openMeteoApiService = openMeteoApiService;
         this.favoriteLocationService = favoriteLocationService;
-        this.authenticationContext = authenticationContext;
         this.locationDTO = (LocationDTO) VaadinSession.getCurrent().getAttribute("city");
 
         H1 h1 = new H1("Daily Temperature of " + this.locationDTO.getName().toUpperCase() );

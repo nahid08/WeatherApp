@@ -29,7 +29,7 @@ public class SecurityConfiguration
 
         http.authorizeHttpRequests(auth -> {
             auth.requestMatchers("/login/**").permitAll().
-                    requestMatchers("/registration").permitAll();
+                    requestMatchers("/registration/**").permitAll();
         });
 
         http.authenticationProvider(authenticationProvider());
