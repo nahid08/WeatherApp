@@ -11,8 +11,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 @EnableWebSecurity
 @Configuration
@@ -21,6 +23,9 @@ public class SecurityConfiguration
 
     @Autowired
     UserDetailsServiceImpl userDetailsService;
+
+    @Autowired
+    CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
 
 
     @Override
@@ -33,9 +38,12 @@ public class SecurityConfiguration
         });
 
         http.authenticationProvider(authenticationProvider());
-        super.configure(http);
-        setLoginView(http, LoginView.class);
-    }
+        http.formLogin(formLogin -> {
+            formLogin.loginPage("/login");
+            formLogin.successHandler(customAuthenticationSuccessHandler);
+        });
+
+        super.configure(http);}
 
     @Override
     public void configure(WebSecurity web) throws Exception {
@@ -56,6 +64,5 @@ public class SecurityConfiguration
 
         return authProvider;
     }
-
 
 }

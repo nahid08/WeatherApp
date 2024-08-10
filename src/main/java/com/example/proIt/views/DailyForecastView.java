@@ -9,15 +9,21 @@ import com.example.proIt.service.FavoriteLocationService;
 import com.example.proIt.service.OpenMeteoApiService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.charts.Chart;
 import com.vaadin.flow.component.charts.model.*;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.spring.security.AuthenticationContext;
 import jakarta.annotation.security.PermitAll;
+
+import java.awt.*;
 import java.util.List;
 
 @PermitAll
@@ -27,6 +33,10 @@ public class DailyForecastView extends VerticalLayout  {
     LocationDTO locationDTO;
     OpenMeteoApiService openMeteoApiService;
     FavoriteLocationService favoriteLocationService;
+
+    TextField favoriteLocationDescription;
+
+    Dialog dialog;
 
 
     DailyForecastView(OpenMeteoApiService openMeteoApiService, FavoriteLocationService favoriteLocationService) {
@@ -40,6 +50,7 @@ public class DailyForecastView extends VerticalLayout  {
         setAlignItems(Alignment.CENTER);
         addHourlyButton();
         addFavoriteButton();
+        configureDialog();
     }
     
     public void addHourlyButton() {
@@ -62,10 +73,7 @@ public class DailyForecastView extends VerticalLayout  {
             if(isLocationIsAleadyAdded(newFavoriteLocation)) {
                 Notification.show("This location has already added to the favorite list.");
             } else {
-                FavoriteLocation savedFavoriteLocation = this.favoriteLocationService.saveFavoriteLocation(newFavoriteLocation);
-                List<FavoriteLocation> favoriteLocationList = (List<FavoriteLocation>) VaadinSession.getCurrent().getAttribute("favoriteLocationList");
-                favoriteLocationList.add(savedFavoriteLocation);
-                Notification.show("The record has been added to the list successfully!!");
+                dialog.open();
             }
 
         });
@@ -118,5 +126,44 @@ public class DailyForecastView extends VerticalLayout  {
 
     }
 
+    private void configureDialog() {
+        this.dialog = new Dialog("Description");
+        dialog.add(createDialogLayout());
+        Button okButton = new Button("Ok", e -> {
+            FavoriteLocation newFavoriteLocation = new FavoriteLocation();
+            newFavoriteLocation.setCountry(this.locationDTO.getCountry());
+            newFavoriteLocation.setLatitude(this.locationDTO.getLatitude());
+            newFavoriteLocation.setLongitude(this.locationDTO.getLongitude());
+            newFavoriteLocation.setName(this.locationDTO.getName());
+            newFavoriteLocation.setDescription(favoriteLocationDescription.getValue());
+            newFavoriteLocation.setUser((User) VaadinSession.getCurrent().getAttribute("user"));
+            FavoriteLocation savedFavoriteLocation = this.favoriteLocationService.saveFavoriteLocation(newFavoriteLocation);
+            List<FavoriteLocation> favoriteLocationList = (List<FavoriteLocation>) VaadinSession.getCurrent().getAttribute("favoriteLocationList");
+            favoriteLocationList.add(savedFavoriteLocation);
+            Notification.show("The record has been added to the list successfully!!");
+            dialog.close();
+        });
+        dialog.getFooter().add(okButton);
+        add(dialog);
+
+        // Center the button within the example
+        getStyle().set("position", "fixed").set("top", "0").set("right", "0")
+                .set("bottom", "0").set("left", "0").set("display", "flex")
+                .set("align-items", "center").set("justify-content", "center");
+
+    }
+
+    private VerticalLayout createDialogLayout() {
+
+        this.favoriteLocationDescription = new TextField("Enter Description");
+
+        VerticalLayout dialogLayout = new VerticalLayout(favoriteLocationDescription);
+        dialogLayout.setPadding(false);
+        dialogLayout.setSpacing(false);
+        dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
+        dialogLayout.getStyle().set("width", "18rem").set("max-width", "100%");
+
+        return dialogLayout;
+    }
 
 }

@@ -39,6 +39,7 @@ public class FavoriteLocationListView extends VerticalLayout {
         grid.addColumn(FavoriteLocation::getCountry).setHeader("Country");
         grid.addColumn(FavoriteLocation::getLatitude).setHeader("Latitude");
         grid.addColumn(FavoriteLocation::getLongitude).setHeader("Longitude");
+        grid.addColumn(FavoriteLocation::getDescription).setHeader("Description");
 
         grid.setItems(favoriteLocations);
 

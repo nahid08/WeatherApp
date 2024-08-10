@@ -5,12 +5,19 @@ import com.example.proIt.model.User;
 import com.example.proIt.service.FavoriteLocationService;
 import com.example.proIt.service.SecurityService;
 import com.example.proIt.service.UserService;
+import com.helger.commons.string.StringHelper;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.login.LoginForm;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.PasswordField;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -44,7 +51,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         if(this.securityService.getAuthenticatedUser() != null) {
             UI.getCurrent().navigate(LocationSearchView.class);
         }
-        addClassName("login-view");
+
         setSizeFull();
 
         setJustifyContentMode(JustifyContentMode.CENTER);
@@ -53,15 +60,23 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         login.setAction("login");
         login.addLoginListener(e -> {
             Optional<User> user = this.userService.getUserByName(e.getUsername());
-            VaadinSession.getCurrent().setAttribute("user", user.get());
-            List<FavoriteLocation> favoriteLocationList = favoriteLocationService.getFavoriteLocationByUser(user.get());
-            VaadinSession.getCurrent().setAttribute("favoriteLocationList", favoriteLocationList != null ? favoriteLocationList : new ArrayList<FavoriteLocation>());
-            UI.getCurrent().navigate(LocationSearchView.class);
+            if(user.isPresent() == false || !StringHelper.isNotEmpty(e.getUsername()) || !StringHelper.isNotEmpty(e.getPassword())) {
+                Notification.show("Invalid User");
+            } else {
+                VaadinSession.getCurrent().setAttribute("user", user.get());
+                List<FavoriteLocation> favoriteLocationList = favoriteLocationService.getFavoriteLocationByUser(user.get());
+                VaadinSession.getCurrent().setAttribute("favoriteLocationList", favoriteLocationList != null ? favoriteLocationList : new ArrayList<FavoriteLocation>());
+                UI.getCurrent().navigate(LocationSearchView.class);
+            }
+
         });
 
         addRegisterButton();
         add(new H1("Log In"), login);
+
     }
+
+
 
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {

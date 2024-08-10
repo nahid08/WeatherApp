@@ -14,6 +14,8 @@ public class FavoriteLocation {
     double longitude;
     String country;
 
+    String description;
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -68,5 +70,13 @@ public class FavoriteLocation {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
